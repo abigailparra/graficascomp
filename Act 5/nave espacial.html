@@ -1,0 +1,106 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Nave Espacial</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+
+    body{
+          text-align: center;
+          background-image: url('imgs/morado.jpg');
+          background-repeat: no-repeat;
+          background-size: cover;
+          background-color: rgb(0, 0, 0);
+        }
+    #canvas {
+        background-color: #00000000;
+      }
+    </style>
+  </head>
+  <body>
+	  <audio controls>
+  <source src="space-ranger-moire-main-version-03-04-10814.mp3" type="audio/mp3">
+</audio>
+    <canvas id="canvas" width="1250" height="540"></canvas>
+
+    <script src="utils.js"></script>
+    <script src="./classes/perronave.js"></script>
+    <script>
+    window.onload = function () {
+      var canvas = document.getElementById('canvas'),
+          context = canvas.getContext('2d'),
+          perro = new perronave(),
+          vr = 0,
+          vx = 0,
+          vy = 0,
+          thrust = 0,
+          friction = 0.98;
+
+      perro.x = canvas.width / 2;
+      perro.y = canvas.height / 2;
+
+      window.addEventListener('keydown', function (event) {
+        switch (event.keyCode) {
+        case 37:      //left
+          vr = -3;
+          break;
+        case 39:      //right
+          vr = 3;
+          break;
+        case 38:      //up
+          thrust = 0.05;
+          perro.showFlame = true;
+          break;
+        }
+      }, false);
+
+      window.addEventListener('keyup', function () {
+        vr = 0;
+        thrust = 0;
+        perro.showFlame = false;
+      }, false);
+
+      (function drawFrame () {
+        window.requestAnimationFrame(drawFrame, canvas);
+        context.clearRect(0, 0, canvas.width, canvas.height);
+
+        perro.rotation += vr * Math.PI / 180;
+
+          var angle = perro.rotation, //in radians
+            ax = Math.cos(angle) * thrust,
+            ay = Math.sin(angle) * thrust,
+            left = 0,
+            right = canvas.width,
+            top = 0,
+            bottom = canvas.height;
+
+
+        vx += ax;
+        vy += ay;
+        vx *= friction;
+        vy *= friction;
+        perro.x += vx;
+        perro.y += vy;
+
+        //screen wrapping
+        if(perro.x - perro.width / 2 > right){
+            perro.x = left - perro.width / 2;
+        }else if (perro.x + perro.width / 2 < left){
+            perro.x = right + perro.width / 2;
+        }
+        if (perro.y - perro.height / 2 > bottom) {
+          perro.y = top - perro.height / 2;
+        } else if (perro.y < top - perro.height / 2) {
+          perro.y = bottom + perro.height / 2;
+        }
+
+        
+        perro.draw(context);
+
+      }());
+
+    };
+    </script>
+  </body>
+</html>
